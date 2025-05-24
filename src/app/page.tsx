@@ -24,35 +24,35 @@ export default function HomePage() {
   className="bg-cover bg-center bg-no-repeat py-20"
   style={{ backgroundImage: "url('/images/1.jpg')" }}>
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-7xl  font-bold mb-4">Добро пожаловать в HealthCare+</h2>
-          <p className="text-2xl font-medium mb-6">Качественная медицинская помощь для всей семьи</p>
+          <h2 className="text-7xl  font-bold mb-4 select-none">Добро пожаловать в HealthCare+</h2>
+          <p className="text-2xl font-medium mb-6 select-none">Качественная медицинская помощь для всей семьи</p>
           <Link href ="/about">
-           <Button className="text-lg bg-pink-800 px-6 py-3">Узнать больше</Button>
+           <Button className="text-lg bg-pink-800 px-6 py-3 select-none">Узнать больше</Button>
           </Link>
         </div>
       </section>
 
    
       <section className="py-16 bg-pink-100">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 gap-40">
           <h3 className="text-3xl font-bold text-center mb-10">Наши услуги</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="text-center p-6 border-4 border-pink-600">
-              <CardContent>
-                <Stethoscope className="mx-auto mb-4 h-10 w-10 text-pink-600" />
+            <Card className="text-center p-6 border-4 border-pink-600 shadow-[0px_0px_50px_10px_rgba(219,39,119,0.5)] bg-pink-100">
+              <CardContent className="animate-pulse ">
+                <Stethoscope className="mx-auto mb-4 h-10 w-10 text-pink-600 " />
                 <h4 className="text-xl font-semibold">Общие консультации</h4>
                 <p className="mt-2 text-sm">Профессиональные врачи доступны ежедневно</p>
               </CardContent>
             </Card>
-            <Card className="text-center p-6 border-4 border-pink-600">
-              <CardContent>
+            <Card className="text-center p-6 border-4 border-pink-600 shadow-[0px_0px_50px_10px_rgba(219,39,119,0.5)] bg-pink-100">
+              <CardContent className="animate-pulse">
                 <Calendar className="mx-auto mb-4 h-10 w-10 text-pink-600" />
                 <h4 className="text-xl font-semibold">Планирование визитов</h4>
                 <p className="mt-2 text-sm">Простое онлайн-бронирование встреч</p>
               </CardContent>
             </Card>
-            <Card className="text-center p-6 border-4 border-pink-600">
-              <CardContent>
+            <Card className="text-center p-6 border-4 border-pink-600 shadow-[0px_0px_50px_10px_rgba(219,39,119,0.5)] bg-pink-100">
+              <CardContent className="animate-pulse">
                 <Phone className="mx-auto mb-4 h-10 w-10 text-pink-600" />
                 <h4 className="text-xl font-semibold">Экстренные звонки</h4>
                 <p className="mt-2 text-sm">Доступны 24/7 для экстренных случаев</p>
@@ -61,8 +61,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
- 
-    <section className="bg-white py-16 px-4">
+ <hr className=" border-1 border-pink-500 "/>
+    <section className="bg-pink-100 py-16 px-4">
+      
       <div className="container mx-auto max-w-3xl">
         <h2 className="text-3xl font-bold text-center text-pink-600 mb-10">
           Часто задаваемые вопросы
