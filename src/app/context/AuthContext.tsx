@@ -8,76 +8,102 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useRouter } from "next/navigation"; // Используем из next/navigation
+import { useRouter } from "next/navigation";
 
 interface User {
   name: string;
   email: string;
-  // Можно добавить imageUrl для фото профиля
   profileImageUrl?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, name?: string) => Promise<void>; // name опционален для логина
+  login: (email: string) => Promise<void>; // Удален name из параметров, т.к. мы будем брать его из зарегистрированных данных
   register: (name: string, email: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const REGISTERED_USERS_KEY = "registeredUsers"; // Ключ для хранения списка зарегистрированных пользователей
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Начальная загрузка для проверки localStorage
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // При загрузке компонента проверяем localStorage
     const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    setIsLoading(false); // Завершаем начальную загрузку
+    setIsLoading(false);
   }, []);
 
-  const login = async (email: string, name?: string): Promise<void> => {
+  const getRegisteredUsers = (): User[] => {
+    const usersJson = localStorage.getItem(REGISTERED_USERS_KEY);
+    return usersJson ? JSON.parse(usersJson) : [];
+  };
+
+  const saveRegisteredUsers = (users: User[]) => {
+    localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(users));
+  };
+
+  const login = async (email: string): Promise<void> => {
     setIsLoading(true);
-    // Имитация API запроса
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const userData: User = {
-      email,
-      name: name || "Пользователь",
-      profileImageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        name || email
-      )}&background=random&color=fff`,
-    };
-    setUser(userData);
-    localStorage.setItem("currentUser", JSON.stringify(userData));
-    setIsLoading(false);
-    router.push("/"); // Перенаправляем на главную после логина
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Имитация задержки
+
+    const registeredUsers = getRegisteredUsers();
+    const foundUser = registeredUsers.find((u) => u.email === email);
+
+    if (foundUser) {
+      setUser(foundUser);
+      localStorage.setItem("currentUser", JSON.stringify(foundUser));
+      setIsLoading(false);
+      router.push("/");
+    } else {
+      setIsLoading(false);
+      // Важно: выбрасываем ошибку, чтобы SignInPage мог ее обработать
+      throw new Error("Пользователь с таким email не зарегистрирован.");
+    }
   };
 
   const register = async (name: string, email: string): Promise<void> => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const userData: User = {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Имитация задержки
+
+    const registeredUsers = getRegisteredUsers();
+    const existingUser = registeredUsers.find((u) => u.email === email);
+
+    if (existingUser) {
+      setIsLoading(false);
+      // Важно: выбрасываем ошибку, чтобы RegisterPage мог ее обработать (если нужно)
+      // или можно просто не логинить и показать сообщение в RegisterPage
+      throw new Error("Пользователь с таким email уже существует.");
+    }
+
+    const newUser: User = {
       name,
       email,
       profileImageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
         name
-      )}&background=random&color=fff`,
+      )}&background=ea80fc&color=fff&font-size=0.45`, // Немного изменил цвета для разнообразия
     };
-    setUser(userData);
-    localStorage.setItem("currentUser", JSON.stringify(userData));
+
+    const updatedUsers = [...registeredUsers, newUser];
+    saveRegisteredUsers(updatedUsers);
+
+    setUser(newUser);
+    localStorage.setItem("currentUser", JSON.stringify(newUser));
     setIsLoading(false);
-    router.push("/"); // Перенаправляем на главную после регистрации
+    router.push("/");
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("currentUser");
-    router.push("/signIn"); // Перенаправляем на страницу входа
+    router.push("/signIn");
   };
 
   return (

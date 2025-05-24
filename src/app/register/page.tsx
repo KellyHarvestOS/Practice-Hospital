@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link"; // Для ссылки "Войти"
+import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 
 interface RegisterForm {
@@ -30,7 +30,7 @@ const RegisterPage = () => {
     passrepeat: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const { register, isLoading } = useAuth(); // Используем register и isLoading из контекста
+  const { register, isLoading } = useAuth();
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -56,25 +56,29 @@ const RegisterPage = () => {
     if (!validateForm()) {
       return;
     }
+    setErrors({}); // Сброс предыдущих общих ошибок
     try {
-      await register(form.name, form.email); // Пароль здесь не передаем, т.к. это имитация
+      await register(form.name, form.email);
       // Перенаправление произойдет внутри функции register в AuthContext
       // Очистка полей не нужна, т.к. будет перенаправление
-    } catch (error) {
-      // Обработка ошибок от функции register, если она их выбрасывает
+    } catch (error: any) {
+      // Ловим ошибки от AuthContext
       console.error("Ошибка регистрации:", error);
-      setErrors({ general: "Ошибка регистрации. Попробуйте позже." });
+      setErrors({
+        general: error.message || "Ошибка регистрации. Попробуйте позже.",
+      });
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-pink-100 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="bgSquares">
+        {/* Можно добавить фоновые анимации/элементы, если есть */}
+        {/* <div className="bgSquares">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="square"></div>
           ))}
-        </div>
+        </div> */}
       </div>
       <Card className="relative z-10 w-full max-w-md shadow-[0px_0px_50px_10px_rgba(219,39,119,0.2)] border-pink-200">
         <CardHeader>

@@ -6,16 +6,18 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/context/AuthContext";
+// import { UserCircle } from "lucide-react"; // Раскомментируйте, если хотите использовать иконку
 
 const Header = () => {
   const { user, logout, isLoading } = useAuth();
+  // const router = useRouter(); // Раскомментируйте, если нужен router, например, для перехода на профиль
 
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="bg-pink-500 text-white py-4 px-4 shadow-md sticky top-0 z-50" // Уменьшил py для компактности
+      className="bg-pink-500 text-white py-4 px-4 shadow-md sticky top-0 z-50"
     >
       <div className="container mx-auto flex justify-between items-center">
         <Link
@@ -55,22 +57,26 @@ const Header = () => {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-3 cursor-pointer"
+                // onClick={() => router.push('/profile')} // Пример: переход на страницу профиля
               >
                 {user.profileImageUrl ? (
                   <Image
                     src={user.profileImageUrl}
                     alt={user.name || "Профиль"}
-                    width={36}
-                    height={36}
-                    className="rounded-full border-2 border-pink-100"
+                    width={40}
+                    height={40}
+                    className="rounded-full border-2 border-pink-100 shadow-lg object-cover"
                   />
                 ) : (
-                  <div className="w-9 h-9 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-semibold">
+                  <div className="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-bold text-lg border-2 border-pink-100 shadow-lg">
                     {user.name ? user.name.charAt(0).toUpperCase() : "?"}
+                    {/* Или иконка: <UserCircle size={24} className="text-pink-700" /> */}
                   </div>
                 )}
-                <span className="text-sm hidden sm:inline">{user.name}</span>
+                <span className="text-sm font-medium hidden sm:inline">
+                  {user.name}
+                </span>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}

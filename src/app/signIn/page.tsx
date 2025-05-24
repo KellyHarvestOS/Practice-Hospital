@@ -12,42 +12,49 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link"; // Для ссылки "Зарегистрироваться"
+import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); // Пароль пока не используется в логике login, но оставим
+  const [password, setPassword] = useState(""); // Пароль пока не используется в логике AuthContext, но оставляем для UI
   const [error, setError] = useState<string | null>(null);
-  const { login, isLoading } = useAuth(); // Используем login и isLoading из контекста
+  const { login, isLoading } = useAuth();
 
   const handleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setError(null); // Сбрасываем предыдущие ошибки
-    if (!email.trim() || !password.trim()) {
-      // Простая проверка на заполненность
-      setError("Введите email и пароль");
+    setError(null);
+    if (!email.trim()) {
+      // Пароль можно не проверять, если он не используется в логике login
+      setError("Введите email");
       return;
     }
+    // Если пароль все же нужен для валидации на клиенте перед отправкой:
+    // if (!email.trim() || !password.trim()) {
+    //   setError("Введите email и пароль");
+    //   return;
+    // }
+
     try {
-      // В нашей имитации login, имя пользователя будет "Пользователь", если не передано
       await login(email);
       // Перенаправление произойдет внутри функции login в AuthContext
-    } catch (err) {
-      // Обработка ошибок от функции login, если она их выбрасывает
+    } catch (err: any) {
       console.error("Ошибка входа:", err);
-      setError("Ошибка входа. Проверьте данные или попробуйте позже.");
+      setError(
+        err.message || "Ошибка входа. Проверьте данные или попробуйте позже."
+      );
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-pink-100 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="bgSquares">
+        {/* Можно добавить фоновые анимации/элементы, если есть */}
+        {/* <div className="bgSquares">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="square"></div>
           ))}
-        </div>
+        </div> */}
       </div>
       <Card className="relative z-10 w-full max-w-md shadow-[0px_0px_50px_10px_rgba(219,39,119,0.2)] border-pink-200">
         <CardHeader>
@@ -80,6 +87,7 @@ export default function SignInPage() {
               placeholder="••••••••"
               disabled={isLoading}
             />
+            {/* Если пароль не используется в логике AuthContext, можно убрать его или оставить как заглушку */}
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
@@ -90,7 +98,9 @@ export default function SignInPage() {
           >
             {isLoading ? "Вход..." : "Войти"}
           </Button>
-          {error && <p className="text-sm text-center text-red-500">{error}</p>}
+          {error && (
+            <p className="text-sm text-center text-red-500 mt-2">{error}</p>
+          )}
           <span className="text-sm text-center text-gray-500">
             Нет аккаунта?{" "}
             <Link href="/register" className="text-pink-600 hover:underline">
