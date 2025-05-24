@@ -1,4 +1,3 @@
-// app/components/Header.tsx
 "use client";
 
 import Link from "next/link";
@@ -10,7 +9,6 @@ import { useAuth } from "@/app/context/AuthContext";
 
 const Header = () => {
   const { user, logout, isLoading } = useAuth();
-  // const router = useRouter(); // Раскомментируйте, если нужен router, например, для перехода на профиль
 
   return (
     <motion.header
@@ -57,26 +55,26 @@ const Header = () => {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-3 cursor-pointer"
-                // onClick={() => router.push('/profile')} // Пример: переход на страницу профиля
+                className="flex items-center gap-2 cursor-pointer"
               >
-                {user.profileImageUrl ? (
-                  <Image
-                    src={user.profileImageUrl}
-                    alt={user.name || "Профиль"}
-                    width={40}
-                    height={40}
-                    className="rounded-full border-2 border-pink-100 shadow-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-bold text-lg border-2 border-pink-100 shadow-lg">
-                    {user.name ? user.name.charAt(0).toUpperCase() : "?"}
-                    {/* Или иконка: <UserCircle size={24} className="text-pink-700" /> */}
-                  </div>
-                )}
-                <span className="text-sm font-medium hidden sm:inline">
-                  {user.name}
-                </span>
+                <Link href="/profile" className="flex items-center gap-2">
+                  {user.profileImageUrl ? (
+                    <Image
+                      src={user.profileImageUrl}
+                      alt={user.name || "Профиль"}
+                      width={36}
+                      height={36}
+                      className="rounded-full border-2 border-pink-100"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-semibold">
+                      {user.name ? user.name.charAt(0).toUpperCase() : "?"}
+                    </div>
+                  )}
+                  <span className="text-sm hidden sm:inline">
+                    {user.name}
+                  </span>
+                </Link>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -126,4 +124,5 @@ const Header = () => {
     </motion.header>
   );
 };
+
 export default Header;

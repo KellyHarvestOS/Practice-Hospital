@@ -72,15 +72,16 @@ const ContactsPage = () => {
           </div>
         </div>
 
-        <div className="mt-12">
+        <div className="mt-12 perspective-distant">
           <h2 className="text-xl font-semibold mb-4 text-center">Мы на карте</h2>
           <iframe
             src="https://yandex.ru/map-widget/v1/?um=constructor%3Aexample&source=constructor"
             width="100%"
             height="400"
-            className="rounded-lg border"
+            className="rounded-lg border rotate-x-10 rotate-z-0 shadow-lg shadow-pink-500/50"
             allowFullScreen
             loading="lazy"
+            
           ></iframe>
         </div>
       </div>
