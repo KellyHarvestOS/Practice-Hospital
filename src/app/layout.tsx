@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext"; // добавьте импорт
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,14 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {" "}
-          {/* Оборачиваем здесь */}
-          <Header /> {/* Header теперь будет иметь доступ к AuthContext */}
-          <main>{children}</main>
-          {/* Можно добавить Footer сюда, если он есть */}
-        </AuthProvider>
-        <Footer />
+        <ThemeProvider>
+          <AuthProvider>
+            <Header />
+            <main>{children}</main>
+          </AuthProvider>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

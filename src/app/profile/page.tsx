@@ -1,7 +1,7 @@
-// app/profile/page.tsx
 "use client";
-
-import { useState, useEffect, ChangeEvent, FormEvent, useRef } from "react";
+import { useTheme } from "@/app/context/ThemeContext";
+import { Moon, Sun } from "lucide-react";
+import { useState, useEffect, ChangeEvent, useRef } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -12,13 +12,13 @@ import {
   Camera,
   Edit2,
   Save,
-  UserCircle,
   XCircle,
   CheckCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ProfilePage = () => {
+  const { theme, toggleTheme } = useTheme();
   const { user, updateUser, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -32,26 +32,19 @@ const ProfilePage = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Лог при каждом рендере компонента
-  // console.log("ProfilePage RENDER. isEditing:", isEditing, "successMessage:", successMessage, "user:", user);
-
   useEffect(() => {
-    // console.log("useEffect [user, authLoading] run. AuthLoading:", authLoading, "User:", user);
     if (!authLoading && !user) {
       router.push("/signIn");
     }
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (user) {
-      if (!isEditing) {
-        // Только если НЕ В РЕЖИМЕ РЕДАКТИРОВАНИЯ, обновляем из user
-        setEditedName(user.name);
-        setImagePreview(user.profileImageUrl || null);
-        setEditedImageFile(null); // Сбрасываем файл, если вышли из редактирования
-      }
+    if (user && !isEditing) {
+      setEditedName(user.name);
+      setImagePreview(user.profileImageUrl || null);
+      setEditedImageFile(null);
     }
-  }, [user, isEditing]); // Добавляем isEditing, чтобы сбрасывать при выходе из режима ред.
+  }, [user, isEditing]);
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -66,58 +59,44 @@ const ProfilePage = () => {
   };
 
   const handleEditToggle = () => {
-    // console.log("handleEditToggle CALLED. Current isEditing (before update):", isEditing, "Current successMessage:", successMessage);
     const nextIsEditing = !isEditing;
     setIsEditing(nextIsEditing);
     setError(null);
     setSuccessMessage(null);
 
     if (user && nextIsEditing) {
-      // Если ПЕРЕХОДИМ в режим редактирования
-      // console.log("Transitioning TO edit mode, pre-filling form with current user data.");
       setEditedName(user.name);
       setImagePreview(user.profileImageUrl || null);
       setEditedImageFile(null);
     }
-    // console.log("handleEditToggle FINISHED. New isEditing should be:", nextIsEditing);
   };
 
-  // Теперь handleSubmit не принимает event, т.к. вызывается напрямую
   const handleSubmit = async () => {
     if (!user) return;
-
-    // console.log("handleSubmit CALLED");
     setIsUpdating(true);
     setError(null);
     setSuccessMessage(null);
 
     const updatedData: { name?: string; profileImageUrl?: string } = {};
-
     let hasChanges = false;
     if (editedName !== user.name) {
       updatedData.name = editedName;
       hasChanges = true;
     }
-
     if (editedImageFile) {
-      // Если выбран новый файл
-      updatedData.profileImageUrl = imagePreview as string; // imagePreview уже содержит DataURL нового файла
+      updatedData.profileImageUrl = imagePreview as string;
       hasChanges = true;
     }
-
     if (!hasChanges) {
-      // console.log("No changes to submit.");
       setIsUpdating(false);
-      setIsEditing(false); // Выходим из режима редактирования, если не было изменений
+      setIsEditing(false);
       setSuccessMessage("Изменений не было.");
       return;
     }
-
     try {
       await updateUser(user.id, updatedData);
       setSuccessMessage("Профиль успешно обновлен!");
-      // console.log("Profile updated successfully. Setting isEditing to false.");
-      setIsEditing(false); // Выходим из режима редактирования после успешного сохранения
+      setIsEditing(false);
       setEditedImageFile(null);
     } catch (err) {
       setError(
@@ -131,7 +110,7 @@ const ProfilePage = () => {
 
   if (authLoading || !user) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-100px)] bg-pink-50">
+      <div className="flex justify-center items-center min-h-[calc(100vh-100px)] bg-pink-50 dark:bg-gray-900">
         <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -144,36 +123,39 @@ const ProfilePage = () => {
     )}&background=ec4899&color=fff&length=2&font-size=0.45&bold=true`;
 
   return (
-    <div className="min-h-[calc(100vh-150px)] bg-gradient-to-br from-pink-100 via-pink-50 to-rose-100 py-12 px-4 flex flex-col items-center">
+    <div className="min-h-[calc(100vh-150px)] bg-gradient-to-br from-pink-100 via-pink-50 to-rose-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 py-12 px-4 flex flex-col items-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md"
+        className="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-md"
       >
-        <h1 className="text-3xl font-bold text-pink-700 mb-8 text-center">
+        <h1 className="text-3xl font-bold text-pink-700 dark:text-yellow-300 mb-8 text-center">
           Мой Профиль
         </h1>
-        {error && (
-          <motion.div
-            /* ... */ className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md flex items-center"
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-1 rounded-full bg-pink-100 dark:bg-gray-800 border border-pink-200 dark:border-gray-700 text-pink-700 dark:text-yellow-300 shadow transition"
+            title="Переключить тему"
           >
-            <XCircle className="h-5 w-5 mr-2 flex-shrink-0" />{" "}
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {theme === "dark" ? "Светлая тема" : "Тёмная тема"}
+          </button>
+        </div>
+        {error && (
+          <motion.div className="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-700 dark:text-red-200 p-4 mb-6 rounded-md flex items-center">
+            <XCircle className="h-5 w-5 mr-2 flex-shrink-0" />
             <span>{error}</span>
           </motion.div>
         )}
         {successMessage && (
-          <motion.div
-            /* ... */ className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md flex items-center"
-          >
-            <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />{" "}
+          <motion.div className="bg-green-100 dark:bg-green-900 border-l-4 border-green-500 dark:border-green-700 text-green-700 dark:text-green-200 p-4 mb-6 rounded-md flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />
             <span>{successMessage}</span>
           </motion.div>
         )}
-        {/* УБИРАЕМ onSubmit из тега form. Он теперь просто для группировки. Можно заменить на <div> */}
         <div>
-          {" "}
-          {/* <form> */}
           <div className="mb-6 flex flex-col items-center">
             <div className="relative group">
               <Image
@@ -218,7 +200,7 @@ const ProfilePage = () => {
                 <div className="mb-6">
                   <Label
                     htmlFor="name"
-                    className="block text-sm font-medium text-pink-700 mb-1"
+                    className="block text-sm font-medium text-pink-700 dark:text-yellow-300 mb-1"
                   >
                     Имя
                   </Label>
@@ -227,14 +209,14 @@ const ProfilePage = () => {
                     type="text"
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
-                    className="w-full px-4 py-2 border border-pink-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 shadow-sm"
+                    className="w-full px-4 py-2 border border-pink-300 dark:border-yellow-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-yellow-100"
                     required
                   />
                 </div>
                 <div className="mb-6">
                   <Label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-500 mb-1"
+                    className="block text-sm font-medium text-gray-500 dark:text-gray-300 mb-1"
                   >
                     Email (нельзя изменить)
                   </Label>
@@ -243,7 +225,7 @@ const ProfilePage = () => {
                     type="email"
                     value={user.email}
                     disabled
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed shadow-sm"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed shadow-sm"
                   />
                 </div>
               </motion.div>
@@ -256,10 +238,10 @@ const ProfilePage = () => {
                 transition={{ duration: 0.3 }}
                 className="text-center"
               >
-                <h2 className="text-2xl font-semibold text-pink-800">
+                <h2 className="text-2xl font-semibold text-pink-800 dark:text-yellow-200">
                   {user.name}
                 </h2>
-                <p className="text-gray-600">{user.email}</p>
+                <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -267,19 +249,19 @@ const ProfilePage = () => {
             {isEditing ? (
               <>
                 <Button
-                  type="button" // ИЗМЕНЕНИЕ: type="button"
-                  onClick={handleSubmit} // ИЗМЕНЕНИЕ: вызываем handleSubmit напрямую
+                  type="button"
+                  onClick={handleSubmit}
                   disabled={isUpdating}
-                  className="w-full sm:w-auto bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center"
+                  className="w-full sm:w-auto bg-pink-600 hover:bg-pink-700 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center"
                 >
-                  <Save className="mr-2 h-5 w-5" />{" "}
+                  <Save className="mr-2 h-5 w-5" />
                   {isUpdating ? "Сохранение..." : "Сохранить"}
                 </Button>
                 <Button
                   type="button"
                   onClick={handleEditToggle}
                   variant="outline"
-                  className="w-full sm:w-auto border-pink-500 text-pink-600 hover:bg-pink-50 font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center"
+                  className="w-full sm:w-auto border-pink-500 dark:border-yellow-400 text-pink-600 dark:text-yellow-200 hover:bg-pink-50 dark:hover:bg-gray-800 font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center"
                 >
                   <XCircle className="mr-2 h-5 w-5" /> Отмена
                 </Button>
@@ -288,16 +270,15 @@ const ProfilePage = () => {
               <Button
                 type="button"
                 onClick={handleEditToggle}
-                className="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center"
+                className="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center"
               >
                 <Edit2 className="mr-2 h-5 w-5" /> Редактировать профиль
               </Button>
             )}
           </div>
-        </div>{" "}
-        {/* </form> */}
+        </div>
       </motion.div>
-      <p className="text-center text-pink-500 mt-8 text-sm">
+      <p className="text-center text-pink-500 dark:text-yellow-300 mt-8 text-sm">
         Показательные данные хранятся в localStorage.
       </p>
     </div>
